@@ -28,7 +28,7 @@ main {
   
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  display: none;
+  /* display: none; */
 }
 
 h1, h2, h3, blockquote {

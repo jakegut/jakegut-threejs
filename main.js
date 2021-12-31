@@ -1,21 +1,36 @@
 import './style.css'
 
 import * as THREE from 'three';
-
+import noise from 'asm-noise';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+// import { BloomEffect, EffectComposer, EffectPass, RenderPass } from "postprocessing";
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass.js';
 
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 const renderer = new THREE.WebGLRenderer({
-  canvas: document.querySelector('#bg')
+  canvas: document.querySelector('#bg'),
+  powerPreference: "high-performance",
+	antialias: false,
+	stencil: false,
+	depth: false
 });
+
+const composer = new EffectComposer(renderer);
+composer.setSize( window.innerWidth, window.innerHeight );
+composer.addPass(new RenderPass(scene, camera));
+const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1, 0.4, 0.5 );
+composer.addPass( bloomPass );
 
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
-camera.position.setZ(30);
-camera.position.setY(3);
+camera.position.setZ(80);
+camera.position.setY(6);
 
 const geometry = new THREE.TorusGeometry(10, 3, 16, 100);
 
@@ -35,26 +50,48 @@ const pointLightHelper = new THREE.PointLightHelper(pointLight);
 // const gridHelper = new THREE.GridHelper(200, 50, 0xffffff, 0xffffff);
 scene.add(pointLightHelper);
 
-const terrainWidth = 100;
-const terrainDepth = 100;
+const terrainWidth = 75;
+const terrainDepth = 75;
+const terrainX = 150;
+const terrainY = 150;
 
-const plane = new THREE.PlaneGeometry(150, 150, terrainWidth - 1, terrainDepth - 1);
+const plane = new THREE.PlaneGeometry(terrainX, terrainY, terrainWidth - 1, terrainDepth - 1);
 plane.rotateX( - Math.PI / 2 );
+plane.rotateY( - Math.PI / 2 );
 const groundMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff } );
 const planeMesh = new THREE.Mesh(plane, groundMaterial);
 scene.add(planeMesh);
 
 const vertices = plane.attributes.position.array;
 
-function updateVerticies(){
-  for ( let i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
-    // j + 1 because it is the y component that we modify
-    // vertices[ j + 1 ] = THREE.MathUtils.randFloatSpread(1);
-
+function genNoise(t, q){
+  noise.algorithm = 'perlin';
+  let data = []
+  for(let i = 0; i < terrainWidth; i++){
+    for(let j = 0; j < terrainDepth; j++){
+      const height = (noise(i / 6, (j + t) / 6));
+      data.push(height);
+    }
   }
+  return data;
 }
 
-updateVerticies();
+function updateVerticies(t){
+  const q = terrainDepth / 2.7;
+  const heightData = genNoise(t, q);
+  for ( let i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
+    // j + 1 because it is the y component that we modify
+    const d = i % terrainDepth;
+    if(d <= q){
+      const rad = (d / q * Math.PI);
+      const h = Math.sin(rad);
+      vertices[ j + 1 ] = (heightData[i] * 4) * Math.pow(h, 8) * 4
+    } else {
+      vertices[ j + 1 ] = 0;
+    }    
+  }
+  console.log("update")
+}
 
 const textureLoader = new THREE.TextureLoader();
 textureLoader.load( "grid-modified.png", function ( texture ) {
@@ -74,13 +111,14 @@ function addStar() {
   const geo = new THREE.SphereGeometry(0.25, 24, 24);
   const mat = new THREE.MeshStandardMaterial({color: 0xffffff});
   const star = new THREE.Mesh(geo,mat);
-  const [x, y, z] = Array(3).fill().map(() => THREE.MathUtils.randFloatSpread(100));
+  const [x, z] = Array(2).fill().map(() => THREE.MathUtils.randFloatSpread(120));
+  const y = THREE.MathUtils.randFloatSpread(40) + 20
 
-  star.position.set(x, y, z);
+  star.position.set(x, y, z - 150);
   scene.add(star);
 }
 
-Array(200).fill().forEach(() => addStar())
+Array(300).fill().forEach(() => addStar())
 
 const spaceTexture = new THREE.TextureLoader().load('space.jpg');
 scene.background = spaceTexture;
@@ -97,30 +135,47 @@ const moonTexture = new THREE.TextureLoader().load('moon.jpg');
 const normalTexture = new THREE.TextureLoader().load('normal.jpg');
 
 const moon = new THREE.Mesh(
-  new THREE.SphereGeometry(3, 32, 32),
-  new THREE.MeshBasicMaterial({
+  new THREE.SphereGeometry(8, 6, 6),
+  new THREE.MeshStandardMaterial({
     map: moonTexture,
     normalMap: normalTexture,
   })
 )
-// scene.add(moon);
+scene.add(moon);
 
-moon.position.z = 30;
-moon.position.setX(-10);
+moon.position.z = -90;
+moon.position.y = 10;
 
+window.addEventListener( 'resize', onWindowResize );
 
-function moveCamera(){
-  const t = document.body.getBoundingClientRect().top;
-  moon.rotation.x += 0.05;
+function onWindowResize() {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
 
-  jeff.rotation.y += 0.01;
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
 
-  camera.position.z = t * -0.01;
-  camera.position.x = t * -0.0002;
-  camera.position.y = t * -0.0002;
+  renderer.setSize( width, height );
+  composer.setSize( width, height );
+
 }
 
-// document.body.onscroll = moveCamera;
+updateVerticies(0);
+function moveCamera(){
+  const t = document.body.getBoundingClientRect().top;
+  // moon.rotation.x += 0.05;
+
+  // jeff.rotation.y += 0.01;
+
+  // camera.position.z = t * -0.01;
+  // camera.position.x = t * -0.0002;
+  // camera.position.y = t * -0.0002;
+  updateVerticies(t * -0.01);
+  geometry.attributes.position.needsUpdate = true;
+  // console.log(t);
+}
+
+document.body.onscroll = moveCamera;
 
 function animate(){
   requestAnimationFrame(animate);
@@ -131,7 +186,9 @@ function animate(){
 
   controls.update();
 
-  renderer.render(scene, camera);
+  // renderer.render(scene, camera);
+  plane.attributes.position.needsUpdate = true;
+  composer.render();
 }
 
 animate();
