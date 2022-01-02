@@ -1,4 +1,5 @@
 import './style.css'
+import './public/icomoon.css'
 
 import * as THREE from 'three';
 import noise from 'asm-noise';
@@ -77,7 +78,7 @@ function genNoise(t, q){
 }
 
 function updateVerticies(t){
-  const q = terrainDepth / 2.7;
+  const q = terrainDepth / 2;
   const heightData = genNoise(t, q);
   for ( let i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
     // j + 1 because it is the y component that we modify
@@ -85,12 +86,11 @@ function updateVerticies(t){
     if(d <= q){
       const rad = (d / q * Math.PI);
       const h = Math.sin(rad);
-      vertices[ j + 1 ] = (heightData[i] * 4) * Math.pow(h, 8) * 4
+      vertices[ j + 1 ] = (heightData[i] * 4) * Math.pow(h, 3) * 4
     } else {
       vertices[ j + 1 ] = 0;
     }    
   }
-  console.log("update")
 }
 
 const textureLoader = new THREE.TextureLoader();
@@ -106,12 +106,13 @@ textureLoader.load( "grid-modified.png", function ( texture ) {
 
 
 const controls = new OrbitControls(camera, renderer.domElement);
-
+const starColors = [0xffffff, 0x0077b6, 0xe46700];
 function addStar() {
   const geo = new THREE.SphereGeometry(0.25, 24, 24);
-  const mat = new THREE.MeshStandardMaterial({color: 0xffffff});
+  const color = starColors[THREE.MathUtils.randInt(0, starColors.length - 1)];
+  const mat = new THREE.MeshStandardMaterial({color});
   const star = new THREE.Mesh(geo,mat);
-  const [x, z] = Array(2).fill().map(() => THREE.MathUtils.randFloatSpread(120));
+  const [x, z] = Array(2).fill().map(() => THREE.MathUtils.randFloatSpread(140));
   const y = THREE.MathUtils.randFloatSpread(40) + 20
 
   star.position.set(x, y, z - 150);
@@ -122,25 +123,25 @@ Array(300).fill().forEach(() => addStar())
 
 // const spaceTexture = new THREE.TextureLoader().load('space.jpg');
 // scene.background = spaceTexture;
-const loader = new THREE.TextureLoader();
-const texture = loader.load(
-'hdr.png',
-() => {
-  const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
-  rt.fromEquirectangularTexture(renderer, texture);
-  scene.background = rt.texture;
-});
+// const loader = new THREE.TextureLoader();
+// const texture = loader.load(
+// 'hdr.png',
+// () => {
+//   const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
+//   rt.fromEquirectangularTexture(renderer, texture);
+//   scene.background = rt.texture;
+// });
 
-const jeffTexture = new THREE.TextureLoader().load('jeff.png');
+// const jeffTexture = new THREE.TextureLoader().load('jeff.png');
 
-const jeff = new THREE.Mesh(
-  new THREE.BoxGeometry(3,3,3),
-  new THREE.MeshBasicMaterial({map: jeffTexture})
-);
+// const jeff = new THREE.Mesh(
+//   new THREE.BoxGeometry(3,3,3),
+//   new THREE.MeshBasicMaterial({map: jeffTexture})
+// );
 // scene.add(jeff);
 
-const moonTexture = new THREE.TextureLoader().load('moon.jpg');
-const normalTexture = new THREE.TextureLoader().load('normal.jpg');
+// const moonTexture = new THREE.TextureLoader().load('moon.jpg');
+// const normalTexture = new THREE.TextureLoader().load('normal.jpg');
 
 const moon = new THREE.Mesh(
   new THREE.SphereGeometry(8, 6, 6),

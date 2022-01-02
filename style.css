@@ -16,13 +16,26 @@ canvas {
   font-style: normal;
 }
 
+.social {
+  margin: 0;
+  list-style: none;
+  display: inline-block;
+}
+
+.link>a{
+  text-decoration: none;
+  color: white;
+}
+
+.link{
+  display: inline;
+}
+
 
 main {
-  width: 100vw;
   color: white;
   z-index: 99;
   position: absolute;
-  width: 100%;
   margin: 0px auto;
   padding: 120px 0px;
   
@@ -37,46 +50,71 @@ h1, h2, h3, blockquote {
   font-style: normal;
 }
 
-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
+header {
+  background: var(--dark-bg);
+  grid-column: 2 / span 5;
+  font-size: 2.5rem;
+  padding: 2rem;
+  margin-bottom: var(--spacing);
 }
 
+section {
+  grid-column: 2 / 8;
+  padding: 1rem;
+  background: var(--dark-bg);
+  font-size: 1.25rem;
+  line-height: 1.5;
+  margin-bottom: var(--spacing);
+}
 
+blockquote {
+  margin: 0;
+  padding: 0;
+  grid-column: 2 / span 9;
+  margin-bottom: var(--spacing);
+}
 
+blockquote p {
+  color: black;
+  background-color: white;
+  font-size: 4rem;
+  display: inline;
+  line-height: 1;
+}
+
+.left {
+  grid-column: 6 / 12;
+}
+ 
+/* Smartphones (portrait) ----------- */
+@media only screen and (max-width : 320px) {
+  /* Styles */
+}
+ 
+/* iPads (portrait and landscape) ----------- */
+@media only screen and (max-width : 900px) {
+  /* Styles */
   header {
-    background: var(--dark-bg);
-    grid-column: 2 / span 5;
-    font-size: 2.5rem;
-    padding: 2rem;
-    margin-bottom: var(--spacing);
+    grid-column: 2 / 12;
   }
-
   section {
-    grid-column: 2 / 8;
-    padding: 1rem;
-    background: var(--dark-bg);
-    font-size: 1.25rem;
-    line-height: 1.5;
-    margin-bottom: var(--spacing);
+    grid-column: 2 / 12;
   }
-
-  blockquote {
-    margin: 0;
-    padding: 0;
-    grid-column: 2 / span 9;
-    margin-bottom: var(--spacing);
-  }
-
-  blockquote p {
-    color: black;
-    background-color: white;
-    font-size: 4rem;
-    display: inline;
-    line-height: 1;
-  }
-
   .left {
-    grid-column: 6 / 12;
+    grid-column: 2 / 12;
   }
+}
+ 
+/* Desktops and laptops ----------- */
+@media only screen and (min-width: 901px) and (max-width : 1300px) {
+  /* Styles */
+  header {
+    grid-column: 2 / span 7;
+  }
+  section {
+    grid-column: 2 / span 8;
+  }
+  .left {
+    grid-column: 4 / 12;
+  }
+}
