@@ -24,7 +24,7 @@ const renderer = new THREE.WebGLRenderer({
 const composer = new EffectComposer(renderer);
 composer.setSize( window.innerWidth, window.innerHeight );
 composer.addPass(new RenderPass(scene, camera));
-const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1, 0.4, 0.5 );
+const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1, 0.4, 0.1 );
 composer.addPass( bloomPass );
 
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -120,8 +120,16 @@ function addStar() {
 
 Array(300).fill().forEach(() => addStar())
 
-const spaceTexture = new THREE.TextureLoader().load('space.jpg');
-scene.background = spaceTexture;
+// const spaceTexture = new THREE.TextureLoader().load('space.jpg');
+// scene.background = spaceTexture;
+const loader = new THREE.TextureLoader();
+const texture = loader.load(
+'hdr.png',
+() => {
+  const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
+  rt.fromEquirectangularTexture(renderer, texture);
+  scene.background = rt.texture;
+});
 
 const jeffTexture = new THREE.TextureLoader().load('jeff.png');
 
@@ -136,9 +144,8 @@ const normalTexture = new THREE.TextureLoader().load('normal.jpg');
 
 const moon = new THREE.Mesh(
   new THREE.SphereGeometry(8, 6, 6),
-  new THREE.MeshStandardMaterial({
-    map: moonTexture,
-    normalMap: normalTexture,
+  new THREE.MeshBasicMaterial({
+    color: 0xda571c
   })
 )
 scene.add(moon);
