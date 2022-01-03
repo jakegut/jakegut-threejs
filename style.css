@@ -1,4 +1,5 @@
-@import url("https://use.typekit.net/jmk3xov.css");
+/* @import url("https://use.typekit.net/jmk3xov.css"); */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;700&family=Rubik:wght@400;500;700&display=swap');
 
 canvas {
   position: fixed;
@@ -11,42 +12,33 @@ canvas {
   --dark-bg: rgba(15, 15, 15, 0.95);
   --spacing: 350px;
 
-  font-family: brandon-grotesque, sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 400;
   font-style: normal;
 }
 
-.social {
+body{
+  box-sizing: border-box;
+  padding: 0;
   margin: 0;
-  list-style: none;
-  display: inline-block;
 }
-
-.link>a{
-  text-decoration: none;
-  color: white;
-}
-
-.link{
-  display: inline;
-}
-
 
 main {
   color: white;
   z-index: 99;
   position: absolute;
-  margin: 0px auto;
+  margin: 0;
   padding: 120px 0px;
   
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   /* display: none; */
+  /* width: 100vw; */
 }
 
 h1, h2, h3, blockquote {
-  font-family: elevon, sans-serif;
-  font-weight: 700;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 500;
   font-style: normal;
 }
 
@@ -85,6 +77,37 @@ blockquote p {
 .left {
   grid-column: 6 / 12;
 }
+
+.social, .nav {
+  margin: 0;
+  list-style: none;
+  padding: 0;
+  font-size: 3rem;
+}
+
+.nav{
+  font-size: 2rem;
+  color: #00c2ff;
+  padding-bottom: 1rem;
+}
+
+.nav>li {
+  display: inline;
+  padding-right: 10px;
+}
+
+.nav>li>a {
+  color: inherit;
+}
+
+.link>a{
+  text-decoration: none;
+  color: white;
+}
+
+.link{
+  display: inline;
+}
  
 /* Smartphones (portrait) ----------- */
 @media only screen and (max-width : 320px) {
@@ -95,13 +118,21 @@ blockquote p {
 @media only screen and (max-width : 900px) {
   /* Styles */
   header {
-    grid-column: 2 / 12;
+    grid-column: 1 / 13;
+    font-size: 2rem;
+    padding: 1.5rem;
+  }
+  .nav{
+    font-size: 1.5rem;
   }
   section {
-    grid-column: 2 / 12;
+    grid-column: 1 / 13;
   }
   .left {
-    grid-column: 2 / 12;
+    grid-column: 1 / 13;
+  }
+  main{
+    padding-bottom: 0;
   }
 }
  
